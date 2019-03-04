@@ -6,7 +6,7 @@ using UnityEngine;
 namespace P1
 {
 
-    public class Tank : MonoBehaviour
+    public class Tank : Block
     {
         //publico?
         

@@ -55,12 +55,12 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Block.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Heap.cs" />
+     <Compile Include="Assets\Scripts\Pathfinding_A.cs" />
      <Compile Include="Assets\Scripts\Position.cs" />
      <Compile Include="Assets\Scripts\Puzle.cs" />
      <Compile Include="Assets\Scripts\Tablero.cs" />
      <Compile Include="Assets\Scripts\Tank.cs" />
-     <Compile Include="Assets\Scripts\Youtube\Grid.cs" />
-     <Compile Include="Assets\Scripts\Youtube\Node.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>C:/Users/Daniel/Desktop/CUARTO/AIV/p1/P1-IAV/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>

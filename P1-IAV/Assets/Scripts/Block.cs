@@ -6,16 +6,32 @@ using System;
 
 namespace P1
 {
-    public class Block : MonoBehaviour
+    public class Block : MonoBehaviour//quitar esto=?
     {
 
-
+        public bool walkable;
+        public Vector3 worldPosition;
+        public int gCost;
+        public int hCost;
+        public Block parent;
+        public int gridX;
+        public int gridY;
         // El tablero de bloques al que notifica
         private Tablero board;
 
         // La posición asociada (el tablero de bloques la guarda aquí por eficiencia)
         public Position position;
         public int tipo;
+
+        public Block(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
+        {
+            walkable = _walkable;
+            worldPosition = _worldPos;
+            gridX = _gridX;
+            gridY = _gridY;
+        }
+        public Block() { }
+
 
         // Inicializa con el tablero de bloques y el texto (siempre que haya hijo con componente TextMesh), sólo si todavía no tiene puesto ningún tablero de bloques  
         // El tablero de bloques recibido no puede ser nulo, pero el texto sí (representa un bloque no visible)
@@ -24,6 +40,13 @@ namespace P1
             // if (board == null) throw new ArgumentNullException(nameof(board));
             //tipo = 0;     
             this.board = board;
+        }
+        public int fCost
+        {
+            get
+            {
+                return gCost + hCost;
+            }
         }
 
         void OnMouseDown()

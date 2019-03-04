@@ -32,13 +32,108 @@ namespace P1
 
         public Tank getMyTank() { return myTank; }
 
-        //Matriz de bloques
+        //Matriz de bloques //de nodos
         private Block[,] blocks;
 
         // Lista de bloques para ir moviendo (ojo, van de dos en dos... porque en C# 6 no hay tuplas todavía)
         private Queue<Block> blocksInMotion = new Queue<Block>();
-      
-        
+
+        //Cosas Relacionadas con PathfidingA*
+        public Vector2 gridWorldSize;
+        public float nodeRadius;
+        float nodeDiameter;
+        int gridSizeX, gridSizeY;
+
+        void Awake()
+        {
+            nodeDiameter = nodeRadius * 2;
+            gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+            gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
+           
+        }
+        public List<Block> GetNeighbours(Block node)
+        {
+            List<Block> neighbours = new List<Block>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
+
+                    int checkX = node.gridX + x;
+                    int checkY = node.gridY + y;
+
+                    if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                    {
+                        neighbours.Add(blocks[checkX, checkY]);
+                    }
+                }
+            }
+
+            return neighbours;
+        }
+
+        public List<Block> GetBlocks(Block node)
+        {
+            List<Block> neighbours = new List<Block>();
+
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
+
+                    int checkX = node.gridX + x;
+                    int checkY = node.gridY + y;
+
+                    if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                    {
+                        //esto?Tablero????
+                        neighbours.Add(blocks[checkX, checkY]);
+                    }
+                }
+            }
+            return neighbours;
+        }
+
+        public Block NodeFromWorldPoint(Vector3 worldPosition)
+        {
+            float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
+            float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
+            percentX = Mathf.Clamp01(percentX);
+            percentY = Mathf.Clamp01(percentY);
+
+            int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
+            int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
+
+            return blocks[x, y];
+        }
+        public List<Block> path;
+        void OnDrawGizmos()
+        {
+           // Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
+
+            if (blocks != null)
+            {
+                foreach (Block n in blocks)
+                {
+                    Gizmos.color = (n.walkable) ? Color.white : Color.red;
+                    if (path != null)
+                        if (path.Contains(n))
+                            Gizmos.color = Color.black;
+                   // Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .1f));
+                }
+            }
+        }
+
+
+
+
+
+        ///////////////////////////////////////////
         public void Initialize(GameManager manager, Puzle puzzle)
         {
          //   if (manager == null) throw new ArgumentNullException(nameof(manager));
@@ -100,7 +195,6 @@ namespace P1
             else InstanciateTank(rows, colum, puzzle);
         }
        
-
         private void GenerateBlocks(Puzle puzzle)
         {
            // if (puzzle == null) throw new ArgumentNullException(nameof(puzzle));
@@ -160,7 +254,6 @@ namespace P1
 
         }
 
-
         // Destruye todos los bloques de la matriz
         // No se utiliza GetLowerBound ni GetUpperBound porque sabemos que son matrices que siempre empiezan en cero y acaban en positivo
         private void DestroyBlocks()
@@ -179,7 +272,6 @@ namespace P1
                 }
             }
         }
-
 
         void update()
         {

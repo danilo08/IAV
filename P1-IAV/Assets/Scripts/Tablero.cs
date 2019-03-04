@@ -17,7 +17,7 @@ namespace P1
         private static readonly float SCALE_FACTOR_C = 1.1f;
 
         // Aquí es donde necesito el tipo de prefab 
-        public Block blockPrefab;//CasillaNormal
+        public Block blockPrefab;//Prefab
         public Block casillaMeta;
         public Block casillaBarro;
         public Block casillaAgua;
@@ -27,6 +27,10 @@ namespace P1
 
         private GameManager manager;
 
+        private Block meta = null;
+        private Tank myTank;
+
+        public Tank getMyTank() { return myTank; }
 
         //Matriz de bloques
         private Block[,] blocks;
@@ -82,13 +86,14 @@ namespace P1
             uint val = puzzle.GetValue(pos);
             if ((int)val != 3 && (int)val != 4)
             {
-
                Tank t = Instantiate(tank_,
                         new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + aux1 * POSITION_FACTOR_C,
                                      0,
                                      (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - aux * POSITION_FACTOR_R),
                         Quaternion.identity);
                 //InstanciateTank(Tank, tranform.position, transform.rotation);
+                myTank = t;
+               // tank_.seleccionado = true;
 
                //tank_.position=pos;
             }
@@ -120,7 +125,7 @@ namespace P1
                             case 1: aux = casillaAgua; casillaAgua.tipo = 1; break;
                             case 2:aux = casillaBarro; casillaBarro.tipo = 2; break; 
                             case 3: aux = casillaPiedra; casillaPiedra.tipo = 3; break; 
-                            case 4:aux = casillaMeta; casillaMeta.tipo = 4; break; 
+                            case 4:aux = casillaMeta; casillaMeta.tipo = 4;  break; 
                            // default: aux = blockPrefab; break;//como casilla por defecto ponemosla normal
                         }
                         block = Instantiate(aux,
@@ -129,6 +134,10 @@ namespace P1
                                       (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - r * POSITION_FACTOR_R),
                          Quaternion.identity);
 
+                        if (value == 4)
+                        {
+                             meta = block; meta.position = position; meta.Initialize(this);                           
+                        }
                     }
 
 
@@ -210,9 +219,10 @@ namespace P1
 
             //sustituimos la anterior meta por una casilla Normal
             //Guardamos positcion e la casila meta
-            Position position = new Position(casillaMeta.position.GetRow(), casillaMeta.position.GetColumn());
+            Position position = new Position(meta.position.GetRow(), meta.position.GetColumn());//Me guardo la pos
             //destruimos la anterior meta
-            Destroy(blocks[casillaMeta.position.GetRow(), casillaMeta.position.GetColumn()].gameObject);
+            Destroy(blocks[meta.position.GetRow(), meta.position.GetColumn()].gameObject);//
+           
 
             Block b1 = Instantiate(blockPrefab,
                      new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + position.GetColumn() * POSITION_FACTOR_C,
@@ -235,6 +245,9 @@ namespace P1
                                    0,
                                    (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - pos.GetRow() * POSITION_FACTOR_R),
                       Quaternion.identity);
+
+
+            meta = b; meta.position = pos; meta.Initialize(this);
 
             b.position = pos;
             blocks[pos.GetRow(), pos.GetColumn()] = b;

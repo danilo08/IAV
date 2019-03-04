@@ -11,12 +11,16 @@ namespace P1
         //publico?
         
         private Position pos;
-        public bool seleccionado =false;//private ,esta para verlo en el editor
+        public bool seleccionado ;//private ,esta para verlo en el editor
 
         public void select() { seleccionado = true; }
         public void unSelect() { seleccionado = false; }
         public bool getMode() { Debug.Log(seleccionado); return seleccionado; }
 
+        public void swithcSelect()
+        {
+            seleccionado = !seleccionado;
+        }
         public void setPosition(Position p)
         {
             pos = p;
@@ -25,7 +29,7 @@ namespace P1
         // Use this for initialization
         void Start()
         {
-          // seleccionado = false;
+           //seleccionado = false;
         }
 
         // Update is called once per frame
@@ -42,9 +46,7 @@ namespace P1
 
         void OnMouseDown()
         {
-            if (seleccionado) unSelect();
-            else select();
-
+            swithcSelect();
         }
 
 

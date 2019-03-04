@@ -28,7 +28,8 @@ namespace P1
 
         void OnMouseDown()
         {
-            if (true)//no se porque no va si deberia ir
+           // Debug.Log(board.tank_.getMode());
+            if (board.getMyTank().getMode())//no se porque no va si deberia ir
             {
                 switch (tipo)
                 {
@@ -36,19 +37,15 @@ namespace P1
                         {//libre pasa a ser agua y sin tanke
                             board.GoToMeta(position);
                             //cambia casilla a meta
-                            Debug.Log("DeberiaCambiar");
                         }
                         break;
                     case 1:
                         {//casilla barro pasa a ser pidra
-
-                            board.GoToMeta(position);
-                            Debug.Log("DeberiaCambiar");
+                            board.GoToMeta(position);                          
                         }
                         break;
                     case 2://casilla agua pasa a barro
-                        {
-                            Debug.Log("DeberiaCambiar");
+                        {                        
                             board.GoToMeta(position);
                         }
                         break;

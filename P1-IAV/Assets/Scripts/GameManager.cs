@@ -44,6 +44,7 @@ namespace P1
 
             Initialize(rows, columns);
         }
+
         private void Initialize(uint rows, uint columns)
         {
             if (board == null) throw new InvalidOperationException("The board reference is null");

@@ -33,7 +33,6 @@ namespace P1
 
         // Lista de bloques para ir moviendo (ojo, van de dos en dos... porque en C# 6 no hay tuplas todavía)
         private Queue<Block> blocksInMotion = new Queue<Block>();
-
       
         
         public void Initialize(GameManager manager, Puzle puzzle)
@@ -97,7 +96,6 @@ namespace P1
         }
        
 
-
         private void GenerateBlocks(Puzle puzzle)
         {
            // if (puzzle == null) throw new ArgumentNullException(nameof(puzzle));
@@ -123,7 +121,7 @@ namespace P1
                             case 2:aux = casillaBarro; casillaBarro.tipo = 2; break; 
                             case 3: aux = casillaPiedra; casillaPiedra.tipo = 3; break; 
                             case 4:aux = casillaMeta; casillaMeta.tipo = 4; break; 
-                            default: aux = blockPrefab; break;//como casilla por defecto ponemosla normal
+                           // default: aux = blockPrefab; break;//como casilla por defecto ponemosla normal
                         }
                         block = Instantiate(aux,
                          new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + c * POSITION_FACTOR_C,
@@ -178,7 +176,6 @@ namespace P1
         {
 
 
-
         }
 
         public void cambio(Position pos,int tipo)
@@ -200,11 +197,51 @@ namespace P1
                                     (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - pos.GetRow() * POSITION_FACTOR_R),
                        Quaternion.identity);
 
-            blocks[pos.GetRow(), pos.GetColumn()] = b;
             b.position = pos;
+            blocks[pos.GetRow(), pos.GetColumn()] = b;
             b.Initialize(this);
             // b.position = position;
             //cambiar pos..
         }
+
+        public void GoToMeta(Position pos)
+        {
+           //destruimos la casilla se leccionada para poner la meta
+
+            //sustituimos la anterior meta por una casilla Normal
+            //Guardamos positcion e la casila meta
+            Position position = new Position(casillaMeta.position.GetRow(), casillaMeta.position.GetColumn());
+            //destruimos la anterior meta
+            Destroy(blocks[casillaMeta.position.GetRow(), casillaMeta.position.GetColumn()].gameObject);
+
+            Block b1 = Instantiate(blockPrefab,
+                     new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + position.GetColumn() * POSITION_FACTOR_C,
+                                  0,
+                                  (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - position.GetRow() * POSITION_FACTOR_R),
+                     Quaternion.identity);
+
+
+            b1.position = position;
+            blocks[position.GetRow(), position.GetColumn()] = b1;
+            b1.Initialize(this);
+            //////////////////////////////////////////////////////
+
+
+            Destroy(blocks[pos.GetRow(), pos.GetColumn()].gameObject);
+            //creamos la casillaMeta en la posicion seleccionada
+            casillaMeta.tipo = 4;//no se si es necesario
+            Block b = Instantiate(casillaMeta,
+                      new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + pos.GetColumn() * POSITION_FACTOR_C,
+                                   0,
+                                   (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - pos.GetRow() * POSITION_FACTOR_R),
+                      Quaternion.identity);
+
+            b.position = pos;
+            blocks[pos.GetRow(), pos.GetColumn()] = b;
+            b.Initialize(this);
+
+        }
+
+        
     }
 }

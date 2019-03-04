@@ -90,6 +90,7 @@ namespace P1
                 // En realidad ya vale 0 al estar inicializada (si siempre fuese a ser el 0 podría hacerse con la operación módulo)
                 return GAP_VALUE;
         }
+
         private uint GetRamdomValue(uint row, uint column)
         {
             int aux = 0;

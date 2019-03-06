@@ -14,7 +14,7 @@ namespace P1
         private int pasos;
         public void select() { seleccionado = true; }
         public void unSelect() { seleccionado = false; }
-        public bool getMode() { Debug.Log(seleccionado); return seleccionado; }
+        public bool getMode() {  return seleccionado; }
        
 
         private Position objetive;
@@ -22,6 +22,8 @@ namespace P1
         public void swithcSelect()
         {
             seleccionado = !seleccionado;
+
+            
         }
         public void setPosition(Position p)
         {

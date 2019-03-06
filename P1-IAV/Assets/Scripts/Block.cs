@@ -6,7 +6,8 @@ using System;
 
 namespace P1
 {
-    public class Block : MonoBehaviour//quitar esto=?
+
+    public class Block : MonoBehaviour, IHeapItem<Block>//pork no tira?
     {
 
         public bool walkable;
@@ -22,6 +23,7 @@ namespace P1
         // La posición asociada (el tablero de bloques la guarda aquí por eficiencia)
         public Position position;
         public int tipo;
+        int heapIndex;
 
         public Block(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
         {
@@ -110,7 +112,25 @@ namespace P1
             }
         }
 
-
-
+        public int HeapIndex
+        {
+            get
+            {
+                return heapIndex;
+            }
+            set
+            {
+                heapIndex = value;
+            }
+        }
+        public int CompareTo(Block nodeToCompare)
+        {
+            int compare = fCost.CompareTo(nodeToCompare.fCost);
+            if (compare == 0)
+            {
+                compare = hCost.CompareTo(nodeToCompare.hCost);
+            }
+            return -compare;
+        }
     }
 }

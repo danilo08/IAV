@@ -6,63 +6,61 @@ namespace P1
 {
     public class Pathfinding_A : MonoBehaviour
     {
-        public Transform seeker, target;
-        Tablero grid;
+        Position seeker, target;
+        public Tablero grid;
 
         void Awake()
         {
-            grid = GetComponent<Tablero>();
+            //grid = GetComponent<Tablero>();
            
         }
 
         void Update()
         {
-            FindPath(seeker.position, target.position);
+            if (grid.isAllOk())
+            {
+                seeker = grid.getMyTank().position;
+                target = grid.getMyMeta().position;
+                FindPath();
+            }
         }
 
-        void FindPath(Vector3 startPos, Vector3 targetPos)
+        void FindPath()
         {
-            Block startNode = grid.NodeFromWorldPoint(startPos);
-            Block targetNode = grid.NodeFromWorldPoint(targetPos);
+           
+            Block startNode = grid.NodeFromWorldPoint(seeker);
+            Block targetNode = grid.NodeFromWorldPoint(target);
 
-            List<Block> openSet = new List<Block>();
+            Heap<Block> openSet = new Heap<Block>(grid.MaxSize);
             HashSet<Block> closedSet = new HashSet<Block>();
             openSet.Add(startNode);
 
             while (openSet.Count > 0)
             {
-               Block node = openSet[0];
-                for (int i = 1; i < openSet.Count; i++)
-                {
-                    if (openSet[i].fCost < node.fCost || openSet[i].fCost == node.fCost)
-                    {
-                        if (openSet[i].hCost < node.hCost)
-                            node = openSet[i];
-                    }
-                }
+                Block currentNode = openSet.RemoveFirst();
+                closedSet.Add(currentNode);
 
-                openSet.Remove(node);
-                closedSet.Add(node);
-
-                if (node == targetNode)
+                if (currentNode == targetNode)
                 {
                     RetracePath(startNode, targetNode);
                     return;
                 }
 
-                foreach (Block neighbour in grid.GetNeighbours(node))
+                foreach (Block neighbour in grid.GetNeighbours(currentNode))
                 {
-                    if (!neighbour.walkable || closedSet.Contains(neighbour))
+                    
+                    
+                    if (neighbour.tipo==3|| closedSet.Contains(neighbour) || neighbour == null)
                     {
                         continue;
                     }
 
-                    int newCostToNeighbour = node.gCost + GetDistance(node, neighbour);
+                    int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
                     if (newCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                     {
                         neighbour.gCost = newCostToNeighbour;
                         neighbour.hCost = GetDistance(neighbour, targetNode);
-                        neighbour.parent = node;
+                        neighbour.parent = currentNode;
 
                         if (!openSet.Contains(neighbour))
                             openSet.Add(neighbour);
@@ -79,6 +77,7 @@ namespace P1
             while (currentNode != startNode)
             {
                 path.Add(currentNode);
+                Debug.Log(currentNode.position.GetRow()+" ,"+currentNode.position.GetColumn());
                 currentNode = currentNode.parent;
             }
             path.Reverse();
@@ -89,8 +88,8 @@ namespace P1
 
         int GetDistance(Block nodeA, Block nodeB)
         {
-            int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-            int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);
+            int dstX =(int)Mathf.Abs(nodeA.position.GetRow() - nodeB.position.GetRow());
+            int dstY = (int)Mathf.Abs(nodeA.position.GetColumn() - nodeB.position.GetColumn());
 
             if (dstX > dstY)
                 return 14 * dstY + 10 * (dstX - dstY);

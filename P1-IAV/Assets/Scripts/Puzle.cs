@@ -19,7 +19,7 @@ namespace P1
         int aux_ = 0;
         //control
         private bool nMetas = false;
-       
+
 
         public uint rows;
         public uint columns;

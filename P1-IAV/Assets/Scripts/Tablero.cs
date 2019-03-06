@@ -29,9 +29,10 @@ namespace P1
 
         private Block meta = null;
         private Tank myTank;
-
+        private bool IsEverythingOk = false;
+        public bool isAllOk() { return IsEverythingOk; }
         public Tank getMyTank() { return myTank; }
-
+        public Block getMyMeta() { return meta; }
         //Matriz de bloques //de nodos
         private Block[,] blocks;
 
@@ -47,14 +48,14 @@ namespace P1
         void Awake()
         {
             nodeDiameter = nodeRadius * 2;
-            gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+            gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);//igual
             gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
            
         }
+
         public List<Block> GetNeighbours(Block node)
         {
             List<Block> neighbours = new List<Block>();
-
             for (int x = -1; x <= 1; x++)
             {
                 for (int y = -1; y <= 1; y++)
@@ -62,12 +63,13 @@ namespace P1
                     if (x == 0 && y == 0)
                         continue;
 
-                    int checkX = node.gridX + x;
-                    int checkY = node.gridY + y;
+                    int checkX = (int)node.position.GetRow() + x;
+                    int checkY = (int)node.position.GetColumn() + y;
 
-                    if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                    if (checkX >= 0 && checkX < blocks.GetLength(0) && checkY >= 0 && checkY < blocks.GetLength(1))
                     {
                         neighbours.Add(blocks[checkX, checkY]);
+                        
                     }
                 }
             }
@@ -89,6 +91,7 @@ namespace P1
                     int checkX = node.gridX + x;
                     int checkY = node.gridY + y;
 
+                    //esto no es getRow y getColum?
                     if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
                     {
                         //esto?Tablero????
@@ -99,19 +102,20 @@ namespace P1
             return neighbours;
         }
 
-        public Block NodeFromWorldPoint(Vector3 worldPosition)
+        public Block NodeFromWorldPoint(Position worldPosition)
         {
-            float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
+            /*float percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
             float percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
             percentX = Mathf.Clamp01(percentX);
             percentY = Mathf.Clamp01(percentY);
 
             int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
-            int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
-
-            return blocks[x, y];
+            int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);*/
+            return blocks[worldPosition.GetRow(), worldPosition.GetColumn()];
         }
+
         public List<Block> path;
+
         void OnDrawGizmos()
         {
            // Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
@@ -129,7 +133,7 @@ namespace P1
             }
         }
 
-
+        //public Position nextBlock()
 
 
 
@@ -188,8 +192,10 @@ namespace P1
                         Quaternion.identity);
                 //InstanciateTank(Tank, tranform.position, transform.rotation);
                 myTank = t;
-               // tank_.seleccionado = true;
-
+                myTank.position = pos;
+                myTank.Initialize(this);
+                // tank_.seleccionado = true;
+                IsEverythingOk = true; //Comienza el A*Update
                //tank_.position=pos;
             }
             else InstanciateTank(rows, colum, puzzle);
@@ -347,6 +353,13 @@ namespace P1
 
         }
 
-        
+        public int MaxSize
+        {
+            get
+            {
+                //return gridSizeX * gridSizeY;
+                return blocks.GetLength(0) * blocks.GetLength(1);
+            }
+        }
     }
 }

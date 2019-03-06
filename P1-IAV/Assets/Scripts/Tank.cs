@@ -8,14 +8,16 @@ namespace P1
 
     public class Tank : Block
     {
-        //publico?
-        
+        //publico?    
         private Position pos;
         public bool seleccionado ;//private ,esta para verlo en el editor
-
+        private int pasos;
         public void select() { seleccionado = true; }
         public void unSelect() { seleccionado = false; }
         public bool getMode() { Debug.Log(seleccionado); return seleccionado; }
+       
+
+        private Position objetive;
 
         public void swithcSelect()
         {
@@ -29,20 +31,27 @@ namespace P1
         // Use this for initialization
         void Start()
         {
-           //seleccionado = false;
+           
         }
 
         // Update is called once per frame
         void Update()
         {
-           /* if (seleccionado)
+            if (seleccionado)
             {
+                //objetive = board.getMyMeta().position;
+
             }
             else if (!seleccionado)
             {
-            }*/
+            }
         }
     
+
+        public void move(Position nextPos)
+        {
+           // transform.position += objetive.normalized * 2 * Time.deltaTime;
+        }
 
         void OnMouseDown()
         {

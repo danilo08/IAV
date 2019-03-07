@@ -51,12 +51,13 @@ namespace P1
             }
         }
 
+
         void OnMouseDown()
         {
            // Debug.Log(board.tank_.getMode());
             if (board.getMyTank().getMode())//no se porque no va si deberia ir
             {
-                switch (tipo)
+                switch (tipo)//cambiar
                 {
                     case 0:
                         {//libre pasa a ser agua y sin tanke
@@ -76,7 +77,11 @@ namespace P1
                         break;
                    // case default: break;
                 }
-            }
+                board.getMyTank().unSelect();
+               //finish=false;???
+               //Para que el algoritmo busque la nueva ruta ya que acabamos de crear una nueva meta
+
+            } 
             else 
             {
                 switch (tipo)

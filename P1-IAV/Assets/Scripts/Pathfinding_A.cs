@@ -8,7 +8,9 @@ namespace P1
     {
         Position seeker, target;
         public Tablero grid;
+        bool finish = false;
 
+        public void setNoFinish() { finish = false; }
         void Awake()
         {
             //grid = GetComponent<Tablero>();
@@ -17,6 +19,8 @@ namespace P1
 
         void Update()
         {
+            finish = grid.getTimeMoveForPath();
+            
             if (grid.isAllOk())
             {
                 seeker = grid.getMyTank().position;
@@ -42,7 +46,11 @@ namespace P1
 
                 if (currentNode == targetNode)
                 {
-                    RetracePath(startNode, targetNode);
+                    if (!finish)//si se cambia la meta se tiene ke setear de nuevo a false
+                    {
+                        RetracePath(startNode, targetNode);
+                        finish = true;
+                    }
                     return;
                 }
 
@@ -77,13 +85,16 @@ namespace P1
             while (currentNode != startNode)
             {
                 path.Add(currentNode);
-                Debug.Log(currentNode.position.GetRow()+" ,"+currentNode.position.GetColumn());
+                // Debug.Log(currentNode.position.GetRow()+" ,"+currentNode.position.GetColumn());
                 currentNode = currentNode.parent;
             }
             path.Reverse();
-
+            foreach (Block b in path)
+            {
+                //Debug.Log(b.position.GetRow() + "," + b.position.GetColumn());
+            }
             grid.path = path;
-
+            
         }
 
         int GetDistance(Block nodeA, Block nodeB)

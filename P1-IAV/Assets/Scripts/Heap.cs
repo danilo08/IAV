@@ -23,7 +23,6 @@ namespace P1
         int currentItemCount;
 
 
-
         public Heap(int maxHeapSize)
         {
             items = new T[maxHeapSize];

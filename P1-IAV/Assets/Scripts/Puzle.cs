@@ -98,7 +98,7 @@ namespace P1
             aux = UnityEngine.Random.Range(0, 5);
             //casilla de meta
             if (aux == 4 && nMetas) aux = (int)GetRamdomValue(row, column);
-            if (aux == 4 && !nMetas) nMetas = true;           
+            if (aux == 4 && !nMetas) { nMetas = true; }         
             //casillaAgua
             if (aux==1 &&nAgua<=0) aux = (int)GetRamdomValue(row, column);
             if (aux == 1 && nAgua > 0) nAgua--;
@@ -111,7 +111,6 @@ namespace P1
 
           
 
-            
             return (uint)aux;
 
         }

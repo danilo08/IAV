@@ -9,7 +9,7 @@ namespace P1
     {
         // Constantes
         public static readonly float USER_DELAY = 0.0f;
-        public static readonly float AI_DELAY = 0.2f;
+        public static readonly float AI_DELAY = 0.8f;
 
         private static readonly float POSITION_FACTOR_R = 1.1f;
         private static readonly float POSITION_FACTOR_C = 1.1f;
@@ -23,12 +23,34 @@ namespace P1
         public Block casillaAgua;
         public Block casillaPiedra;
         public Tank tank_;
+        public GameObject rastro;
+
 
         //Obtener el camino a seguir, tiempo etc...
-        private float targetTime = 1.0f;
+        private float targetTime = 0.2f;
         private bool timeToMove = false;
         public bool getTimeMoveForPath() { return !timeToMove; }
         private bool rockOnMyWay = false;
+        private int chosenPath = 0;
+        public void nextPath()
+        {
+            switch (chosenPath)
+            {
+                case 0:
+                    chosenPath = 1;
+                    break;
+                case 1:
+                    chosenPath = 0;
+                    break;
+                default: break;
+            }
+        }
+        //Cosas Relacionadas con PathfidingA*
+        public Vector2 gridWorldSize;
+        public float nodeRadius;
+        float nodeDiameter;
+        int gridSizeX, gridSizeY;
+
 
         private Block aux;
         private GameManager manager;
@@ -45,11 +67,6 @@ namespace P1
         // Lista de bloques para ir moviendo (ojo, van de dos en dos... porque en C# 6 no hay tuplas todavía)
         private Queue<Block> blocksInMotion = new Queue<Block>();
 
-        //Cosas Relacionadas con PathfidingA*
-        public Vector2 gridWorldSize;
-        public float nodeRadius;
-        float nodeDiameter;
-        int gridSizeX, gridSizeY;
 
         void Awake()
         {
@@ -75,6 +92,8 @@ namespace P1
                 for (int y = -1; y <= 1; y++)
                 {
                     if (x == 0 && y == 0)
+                        continue;
+                    if (x != 0 && y != 0 && chosenPath == 1)
                         continue;
 
                     int checkX = (int)node.position.GetRow() + x;
@@ -128,8 +147,38 @@ namespace P1
             return blocks[worldPosition.GetRow(), worldPosition.GetColumn()];
         }
 
+        public List<GameObject> Camino;
+        void drawRastro()
+        {
+           
+            foreach (Block b in path)//No entra
+            {
+                Debug.Log("dibujah");
+                Position pos = b.position;
+                uint aux = pos.GetRow();
+                uint aux1 = pos.GetColumn();
+                //Debug.Log(aux + " " + aux1);
 
+                GameObject t = Instantiate(rastro,
+                     new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + aux1 * POSITION_FACTOR_C,
+                                  0.5f,
+                                  (blocks.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - aux * POSITION_FACTOR_R),
+                     Quaternion.identity);
 
+                // t.position = pos;
+
+                Camino.Add(t);
+            }
+        }
+
+        void DestroyRastro()
+        {
+            foreach(GameObject game in Camino)
+            {
+                Destroy(game);
+            }
+           
+        }
         void OnDrawGizmos()
         {
             // Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y));
@@ -140,8 +189,11 @@ namespace P1
                 {
                     Gizmos.color = (n.walkable) ? Color.white : Color.red;
                     if (path != null)
-                        if (path.Contains(n))
+                        if (path.Contains(n)) {
                             Gizmos.color = Color.black;
+                            
+                        }
+                        
                     // Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .1f));
                 }
             }
@@ -175,6 +227,7 @@ namespace P1
             }
             else if (blocks.GetLength(0) != puzzle.rows || blocks.GetLength(1) != puzzle.columns)
             {
+                //aqui entra  +1 -1
                 DestroyBlocks();
 
                 blocks = new Block[puzzle.rows, puzzle.columns];
@@ -235,9 +288,9 @@ namespace P1
                     {
                         switch (value)
                         {
-                            case 0: aux = blockPrefab; blockPrefab.tipo = 0; break;
-                            case 1: aux = casillaAgua; casillaAgua.tipo = 1; break;
-                            case 2: aux = casillaBarro; casillaBarro.tipo = 2; break;
+                            case 0: aux = blockPrefab; blockPrefab.tipo = 0; blockPrefab.movementPenalty = 1; break;
+                            case 1: aux = casillaAgua; casillaAgua.tipo = 1; casillaAgua.movementPenalty = 20; break;
+                            case 2: aux = casillaBarro; casillaBarro.tipo = 2; casillaBarro.movementPenalty = 40; break;
                             case 3: aux = casillaPiedra; casillaPiedra.tipo = 3; break;
                             case 4: aux = casillaMeta; casillaMeta.tipo = 4; break;
                                 // default: aux = blockPrefab; break;//como casilla por defecto ponemosla normal
@@ -277,7 +330,7 @@ namespace P1
 
         // Destruye todos los bloques de la matriz
         // No se utiliza GetLowerBound ni GetUpperBound porque sabemos que son matrices que siempre empiezan en cero y acaban en positivo
-        private void DestroyBlocks()
+        public void DestroyBlocks()
         {
             //  if (blocks == null) throw new InvalidOperationException("This object has not been initialized");
 
@@ -292,6 +345,10 @@ namespace P1
                         Destroy(blocks[r, c].gameObject);
                 }
             }
+            //añado destruir camino y destroy tank
+
+            DestroyRastro();
+            Destroy(myTank.gameObject);
         }
 
 
@@ -366,9 +423,11 @@ namespace P1
                 blocks[pos.GetRow(), pos.GetColumn()] = b;
                 b.Initialize(this);
                 timeToMove = true;
+                
             }
 
         }
+       
 
         public int MaxSize
         {
@@ -378,6 +437,7 @@ namespace P1
                 return blocks.GetLength(0) * blocks.GetLength(1);
             }
         }
+
         private void MoveTankToGoal()
         {
             if (path.Count != 0)
@@ -385,9 +445,10 @@ namespace P1
                 if (!path[0].walkable)
                 {
                     rockOnMyWay = false;
-                    Debug.Log(path[0].tipo);
                     uint aux = path[0].position.GetRow();
                     uint aux1 = path[0].position.GetColumn();
+                    DestroyRastro();
+                    drawRastro();
                     path.RemoveAt(0);
                     Position pos = new Position(aux, aux1);
                     myTank.transform.position = new Vector3(-((blocks.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + aux1 * POSITION_FACTOR_C,
@@ -403,17 +464,24 @@ namespace P1
                     myTank = t;*/
                     myTank.position = pos;
                     //myTank.Initialize(this);
+
+                    //dibujar ruta
+                    //Dibujar ruta();
                 }
                 else {rockOnMyWay = true; }
+
+               
             }
             else { rockOnMyWay = true; }
 
+            
         }
+
         private void timerEnded()
         {
             //do my stuff
             MoveTankToGoal();
-            targetTime = 2.0f;
+            targetTime = 0.8f;
             if (stopPath())
             {
                 timeToMove = false;
@@ -429,6 +497,15 @@ namespace P1
 
             }
             return false;
+        }
+
+        public void EraseEvertything()
+        {
+          foreach (Block b in blocks){
+                Destroy(b.gameObject);
+            }
+            Destroy(meta.gameObject);
+            Destroy(myTank.gameObject);
         }
     }
 }

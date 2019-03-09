@@ -9,7 +9,6 @@ namespace P1
         Position seeker, target;
         public Tablero grid;
         bool finish = false;
-
         public void setNoFinish() { finish = false; }
         void Awake()
         {
@@ -63,7 +62,7 @@ namespace P1
                         continue;
                     }
 
-                    int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
+                    int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour)+ neighbour.movementPenalty;
                     if (newCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                     {
                         neighbour.gCost = newCostToNeighbour;

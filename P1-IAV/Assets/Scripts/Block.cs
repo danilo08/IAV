@@ -17,6 +17,7 @@ namespace P1
         public Block parent;
         public int gridX;
         public int gridY;
+        public int movementPenalty;
         // El tablero de bloques al que notifica
         private Tablero board;
 
@@ -24,13 +25,16 @@ namespace P1
         public Position position;
         public int tipo;
         int heapIndex;
+        bool activated = true;
 
-        public Block(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
+
+        public Block(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY,int _penalty)
         {
             walkable = _walkable;
             worldPosition = _worldPos;
             gridX = _gridX;
             gridY = _gridY;
+            movementPenalty = _penalty;
         }
         public Block() { }
 
@@ -50,7 +54,14 @@ namespace P1
                 return gCost + hCost;
             }
         }
+        void update()
+        {
+            if (activated)
+            {
+                this.GetComponent<MeshRenderer>();
+            }
 
+        }
 
         void OnMouseDown()
         {

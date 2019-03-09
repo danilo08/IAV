@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace P1
 {
@@ -12,14 +13,9 @@ namespace P1
 
         // El tablero de bloques (prefab or not)
         public Tablero board;
-
-        //public GameObject infoPanel;
-      //  public Text timeNumber;
-       // public Text stepsNumber;
-       // public InputField rowsInput;
-       // public InputField columnsInput;
-
-        // Dimensiones iniciales del puzle (3x3 en caso de que el diseñador no especifique nada en el Inspector)
+        public InputField rowsInput;
+        public InputField columnsInput;
+       
         public uint rows = 3;
         public uint columns = 3;
 
@@ -29,7 +25,55 @@ namespace P1
         private GameManager solver;
         private double time = 0.0d; // in seconds
         private uint steps = 0;
+        public void IncreaseDimensions()
+        {
+            if (board.getTimeMoveForPath())//Si no se ha terminado el recorrido
+            {
+                rows++;
+                columns++;
+                puzzle = new Puzle(rows, columns);
+                Destroy(board.getMyTank().gameObject);
+                board.Initialize(this, puzzle);
+            }
+        }
+        public void DecreaseDimensions()
+        {
+            if (board.getTimeMoveForPath())
+            {
+                rows--;
+                columns--;
+                puzzle = new Puzle(rows, columns);
+                Destroy(board.getMyTank().gameObject);
+                board.Initialize(this, puzzle);
+            }
+        }
+        public void RandomizeBoard()
+        {
+            /* if (board.getTimeMoveForPath())
+             {
+                 board.DestroyBlocks();
+             Destroy(board.getMyTank().gameObject);
 
+             puzzle = new Puzle(rows, columns);
+
+             board.Initialize(this, puzzle);
+                 }
+                 */
+            IncreaseDimensions();
+            DecreaseDimensions();
+        }
+        public void defineDimensions()
+        {
+            uint newRows = Convert.ToUInt32(rowsInput.text);
+            uint newColumns = Convert.ToUInt32(columnsInput.text);
+            if (newRows != null && newColumns != null)
+            {
+                puzzle = new Puzle(newRows, newColumns);
+                Destroy(board.getMyTank().gameObject);
+                board.Initialize(this, puzzle);
+            }
+
+        }
         // Generador de números aleatorios del sistema (podría ser el de Unity, también)
         private System.Random random;
 
@@ -61,7 +105,6 @@ namespace P1
             board.Initialize(this, puzzle);
 
         
-
         }
     }
 }
